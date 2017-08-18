@@ -234,7 +234,7 @@ Enemy_big.prototype = {
 				enemy_bigs_growing_check(me, i);
 				if(this.pool[i].r < conf.enemy_big.maxSize) {
 					this.pool[i].r += conf.enemy_big.growing_spd * deltaTime;
-				} else if(this.pool[i].r > conf.enemy_big.maxSize) {
+				} else {
 					this.pool[i].r = conf.enemy_big.maxSize;
 					this.pool[i].status = "grown";
 				}
@@ -319,11 +319,26 @@ Enemy_big.prototype = {
 //包装Audio类
 function Sound() {
 	this.sounds = [];
+	this.soundReady = 0;
+	var me = this;
+	this.onCanplaythrough = function() {
+		me.soundReady += 1;
+		if(me.soundReady === me.sounds.length) {
+			me.onAllLoaded();
+		}
+	};
+	this.onAllLoaded = function() {
+		for(var i = 0, len = sound.sounds.length; i < len; i ++) {
+			this.sounds[i].removeEventListener("canplaythrough", me.onCanplaythrough);
+		}
+	};
 }
 Sound.prototype = {
 	constructor: Sound,
 	loadSounds: function(arr) {
-		for(var i = 0, len = arr.length; i < len; i ++) {
+		var me = this;
+		var len = arr.length;
+		for(var i = 0; i < len; i ++) {
 			var au = new Audio;
 			if(typeof arr[i] === "string") {
 				au.src = "./sounds/" + arr[i];
@@ -332,7 +347,8 @@ Sound.prototype = {
 				au.src = "./sounds/" + arr[i][0];
 				au.volume = arr[i][1];			
 			}
-			au.load();
+			au.type = "audio/" + au.src.slice(au.src.lastIndexOf(".") + 1);
+			au.addEventListener("canplaythrough", me.onCanplaythrough);
 			this.sounds.push(au);
 		}
 	},
@@ -343,12 +359,42 @@ Sound.prototype = {
 	}
 }
 
+var panel = {
+	lastShowfps: 0,
+	fps: 0,
+	time: 0,
+	showData: function() {
+		gb_ctx.save();
+		gb_ctx.font = "bold 20px Arial";
+		gb_ctx.textAlign = "center";
+		gb_ctx.textBaseline = "middle";
+		gb_ctx.fillText("Score: " + conf.score, 400, 30);
+		gb_ctx.save();
+		gb_ctx.font = "bold 12px Arial";
+		gb_ctx.fillStyle = "yellow";
+		if(conf.showfps && currentTime - this.lastShowfps > 800) {
+			this.fps = 1000 / deltaTime | 0;
+			this.lastShowfps = currentTime;
+		}
+		gb_ctx.fillText("fps: " + this.fps, 750, 20);
+		gb_ctx.restore();
+
+		gb_ctx.save();
+		gb_ctx.font = "bold 16px Arial";
+		this.time += deltaTime;
+		var seconds = this.time / 1000 | 0;
+		gb_ctx.fillText((seconds / 3600 | 0) + ":" + (seconds % 3600 / 60 | 0) + ":" + (seconds % 60), 750, 40);
+		gb_ctx.restore();
+
+		gb_ctx.restore();
+	}
+};
+
 var p = new Player;
 var enemy_big = new Enemy_big;
 var bullet = new Bullets;
 
-//只加载了前三个的时候老是加载不了第三个，后来感觉是浏览器的问题，加载四个之后就没有bug了
-var soundsArr = ["bubble.mp3", "bubble1.mp3", ["bling.ogg", 1], "water_spread.ogg", "kill.ogg"];
+var soundsArr = ["bubble.ogg", "bubble1.ogg", ["bling.ogg", 1], "water_spread.ogg", "kill.ogg"];
 var sound = new Sound;
 //只有开启声音时才创建audio并发起请求，以免浪费资源
 if(conf.sound.on) {

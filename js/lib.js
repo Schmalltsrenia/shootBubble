@@ -73,3 +73,29 @@ function deltaAngle(x, y) {
 	var z = Math.abs(x - y);
 	return z > Math.PI ? Math.PI * 2 - z : z;
 }
+
+//调试用函数，强制返回音频的所有指定属性
+function getAuProps(au) {
+	var props = ["volume", "audioTracks", "autoplay", "buffered",
+		"controller", "controls", "crossOrigin", "currentSrc",
+		"currentTime", "defaultMuted", "defaultPlaybackRate",
+		"duration", "ended", "error", "loop", "mediaGroup",
+		"muted", "networkState", "paused", "playbackRate",
+		"played", "preload", "readyState", "seekable", "seeking",
+		"src", "startDate", "textTracks", "videoTracks", "type"];
+	return getProps(au, props);
+}
+function getProps(target, props) {
+	var obj = {};
+	for(var i = 0, len = props.length; i < len; i++) {
+		getProp(obj, target, props[i]);
+	}
+	return obj;
+	function getProp(obj, target, prop) {
+		try {
+			Object.defineProperty(obj, prop, {
+				value: target[prop]
+			});
+		} catch(e) {}
+	}
+}

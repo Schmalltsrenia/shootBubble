@@ -41,6 +41,7 @@ function enemy_bullet_collision() {
 					attackSound();
 					obj.shield += p.conf.bulletToShield;
 				}
+				break;
 			}
 		}
 	}

@@ -83,5 +83,6 @@ var conf = {
 		on: true,
 		volume: 0.1
 	},
-	score: 0
+	score: 0,
+	showfps: true
 };
