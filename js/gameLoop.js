@@ -64,14 +64,14 @@ var gameLoop = function() {
 //这样就可以在声音监听器执行空函数之前给它一个函数，保证游戏运行前所有资源都是准备好的；
 //移除监听，因为后面每次触发声音时都会调用它；
 window.onload = function() {
-	if(sound.soundReady === sound.sounds.length) {
+	// if(sound.soundReady === sound.sounds.length) {
 		window.requestAnimFrame(gameLoop);
-	} else {
-		sound.onAllLoaded = function() {
-			window.requestAnimFrame(gameLoop);
-			for(var i = 0, len = sound.sounds.length; i < len; i ++) {
-				sound.sounds[i].removeEventListener("canplaythrough", sound.onCanplaythrough);
-			}
-		}
-	}
+	// } else {
+	// 	sound.onAllLoaded = function() {
+	// 		window.requestAnimFrame(gameLoop);
+	// 		for(var i = 0, len = sound.sounds.length; i < len; i ++) {
+	// 			sound.sounds[i].removeEventListener("canplaythrough", sound.onCanplaythrough);
+	// 		}
+	// 	}
+	// }
 };
